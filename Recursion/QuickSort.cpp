@@ -3,18 +3,32 @@
 using namespace std;
 
 int partition(vector<int>& arr,int s,int e){
-    int pivot = arr[e];
-    int i = s-1;
+    int pivot = arr[s];
+    int i = s;
 
-    for(int j = s ; j<e ; j++){
-        if(arr[j]<pivot){
+    for(int j = s+1;j<=e;j++){
+        if(arr[j] < pivot){
             i++;
-            swap(arr[j],arr[i]);
+            swap(arr[i],arr[j]);
         }
     }
-    swap(arr[i+1],arr[e]);
-    return i+1;
+    swap(arr[s],arr[i]);
+    return i;
 }
+
+// int partition(vector<int>& arr,int s,int e){
+//     int pivot = arr[e];
+//     int i = s-1;
+
+//     for(int j = s ; j<e ; j++){
+//         if(arr[j]<pivot){
+//             i++;
+//             swap(arr[j],arr[i]);
+//         }
+//     }
+//     swap(arr[i+1],arr[e]);
+//     return i+1;
+// }
 
 void quickSort(vector<int>& arr,int s,int e){
     if(s>=e) return;
