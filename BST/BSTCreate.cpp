@@ -98,6 +98,68 @@ void takeInput(Node* &root){
     }
 }
 
+Node* minVal(Node* root){
+    Node* temp = root;
+
+    while(temp && temp->left){
+        temp = temp->left;
+    }
+    return temp;
+}
+
+Node* maxVal(Node* root){
+    Node* temp = root;
+
+    while(temp && temp->right){
+        temp = temp->right;
+    }
+    return temp;
+}
+
+Node* deleteFromBST(Node* root, int val){
+    if(root == NULL) return root;
+
+    if(root->data == val){
+
+        // Case 1: 0 child
+        if(root->left == NULL && root->right == NULL){
+            delete root;
+            return NULL;
+        }
+
+        // Case 2: 1 child (left)
+        if(root->left != NULL && root->right == NULL){
+            Node* temp = root->left;
+            delete root;
+            return temp;
+        }
+
+        // Case 2: 1 child (right)
+        if(root->right != NULL && root->left == NULL){
+            Node* temp = root->right;
+            delete root;
+            return temp;
+        }
+
+        // Case 3: 2 children
+        if(root->left != NULL && root->right != NULL){
+            int mini = minVal(root->right)->data;
+            root->data = mini;
+            root->right = deleteFromBST(root->right, mini);
+            return root;
+        }
+    }
+
+    else if(root->data > val){
+        root->left = deleteFromBST(root->left,val);
+    }
+    else{
+        root->right = deleteFromBST(root->right,val);
+    }
+
+    return root;
+}
+
 int main(){
 
     Node* root = NULL;
@@ -108,6 +170,10 @@ int main(){
     cout<<"\nLevel Order Traversal:\n";
     levelOrderTraversal(root);
 
+
+    deleteFromBST(root,10);
+
+    cout<<"Deleting "<<endl;
     cout<<"\nLOT (vector output):\n";
     vector<vector<int>> result = LOT(root);
 
@@ -117,5 +183,14 @@ int main(){
         }
         cout<<endl;
     }
+
+    Node* minNode = minVal(root);
+    Node* maxNode = maxVal(root);
+
+    if(minNode)
+        cout << "\nMin: " << minNode->data;
+
+    if(maxNode)
+        cout << "\nMax: " << maxNode->data;
 
 }
