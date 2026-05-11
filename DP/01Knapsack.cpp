@@ -71,27 +71,51 @@ class Solution {
         
         
         // using space optimisation
+        // vector<int> prev(W+1,0);
+        // vector<int> curr(W+1,0);
+        
+        // for(int i=wt[0];i<=W;i++){
+        //     if(wt[0] <= W) prev[i] = val[0];
+        //     else prev[i] = 0;
+        // }
+        
+        // for(int i=1;i<n;i++){
+        //     for(int w=0;w<=W;w++){
+        //         int incl = 0;
+        //         if(wt[i] <= w){
+        //             incl = val[i] + prev[w-wt[i]];
+        //         }
+                
+        //         int excl = prev[w];
+                
+        //         curr[w] = max(incl,excl);
+        //     }
+        //     prev = curr;
+        // }
+        // return prev[W];
+        
+        // using only 1 array
+        
         vector<int> prev(W+1,0);
         vector<int> curr(W+1,0);
         
         for(int i=wt[0];i<=W;i++){
-            if(wt[0] <= W) prev[i] = val[0];
-            else prev[i] = 0;
+            if(wt[0] <= W) curr[i] = val[0];
+            else curr[i] = 0;
         }
         
         for(int i=1;i<n;i++){
-            for(int w=0;w<=W;w++){
+            for(int w=W;w>0;w--){
                 int incl = 0;
                 if(wt[i] <= w){
-                    incl = val[i] + prev[w-wt[i]];
+                    incl = val[i] + curr[w-wt[i]];
                 }
                 
-                int excl = prev[w];
+                int excl = curr[w];
                 
                 curr[w] = max(incl,excl);
             }
-            prev = curr;
         }
-        return prev[W];
+        return curr[W];
     }
 };
