@@ -1,6 +1,8 @@
 class Solution {
 public:
 
+    long long NEG = -1e15;
+
     // ---------------- RECURSION ----------------
 
     long long solve(int index,
@@ -8,14 +10,27 @@ public:
                     int k,
                     vector<int>& prices) {
 
-        if(index == prices.size() || k == 0)
-            return 0;
+        if(index == prices.size()) {
+
+            if(state == 0)
+                return 0;
+
+            return NEG;
+        }
+
+        if(k == 0) {
+
+            if(state == 0)
+                return 0;
+
+            return NEG;
+        }
 
         long long profit = 0;
 
         // state = 0 -> free state
-        // state = 1 -> holding normal stock
-        // state = 2 -> holding short position
+        // state = 1 -> holding bought stock
+        // state = 2 -> holding short sold stock
 
         if(state == 0) {
 
@@ -68,8 +83,21 @@ public:
                       vector<int>& prices,
                       vector<vector<vector<long long>>>& dp) {
 
-        if(index == prices.size() || k == 0)
-            return 0;
+        if(index == prices.size()) {
+
+            if(state == 0)
+                return 0;
+
+            return NEG;
+        }
+
+        if(k == 0) {
+
+            if(state == 0)
+                return 0;
+
+            return NEG;
+        }
 
         if(dp[index][state][k] != -1)
             return dp[index][state][k];
@@ -127,142 +155,70 @@ public:
         // return solve(0, 0, k, prices);
 
         // ---------------- MEMOIZATION ----------------
+
         // vector<vector<vector<long long>>> dp(
         //     n,
         //     vector<vector<long long>>(3,
         //     vector<long long>(k + 1, -1))
         // );
-        //
+
         // return solvedp(0, 0, k, prices, dp);
+
 
         // ---------------- TABULATION ----------------
 
-        // vector<vector<vector<long long>>> dp(
-        //     n + 1,
-        //     vector<vector<long long>>(3,
-        //     vector<long long>(k + 1, 0))
-        // );
+        vector<vector<vector<long long>>> dp(
+            n + 1,
+            vector<vector<long long>>(3,
+            vector<long long>(k + 1, NEG))
+        );
 
-        // for(int index = n - 1; index >= 0; index--) {
-
-        //     for(int state = 0; state < 3; state++) {
-
-        //         for(int limit = 1; limit <= k; limit++) {
-
-        //             long long profit = 0;
-
-        //             if(state == 0) {
-
-        //                 long long buy =
-        //                     -prices[index] +
-        //                     dp[index + 1][1][limit];
-
-        //                 long long shortSell =
-        //                     prices[index] +
-        //                     dp[index + 1][2][limit];
-
-        //                 long long skip =
-        //                     dp[index + 1][0][limit];
-
-        //                 profit = max({buy, shortSell, skip});
-        //             }
-
-        //             else if(state == 1) {
-
-        //                 long long sell =
-        //                     prices[index] +
-        //                     dp[index + 1][0][limit - 1];
-
-        //                 long long hold =
-        //                     dp[index + 1][1][limit];
-
-        //                 profit = max(sell, hold);
-        //             }
-
-        //             else {
-
-        //                 long long buyBack =
-        //                     -prices[index] +
-        //                     dp[index + 1][0][limit - 1];
-
-        //                 long long hold =
-        //                     dp[index + 1][2][limit];
-
-        //                 profit = max(buyBack, hold);
-        //             }
-
-        //             dp[index][state][limit] = profit;
-        //         }
-        //     }
-        // }
-
-        // return dp[0][0][k];
-
-
-
-        // ---------------- SPACE OPTIMIZATION ----------------
-
-        vector<vector<long long>> curr(
-            3, vector<long long>(k + 1, 0));
-
-        vector<vector<long long>> next(
-            3, vector<long long>(k + 1, 0));
+        for(int limit = 0; limit <= k; limit++) {
+            dp[n][0][limit] = 0;
+        }
 
         for(int index = n - 1; index >= 0; index--) {
 
-            for(int state = 0; state < 3; state++) {
+            for(int limit = 0; limit <= k; limit++) {
 
-                for(int limit = 1; limit <= k; limit++) {
+                dp[index][0][limit] =
+                    dp[index + 1][0][limit];
 
-                    long long profit = 0;
+                if(limit > 0) {
 
-                    if(state == 0) {
+                    dp[index][0][limit] = max(
+                        dp[index][0][limit],
 
-                        long long buy =
-                            -prices[index] +
-                            next[1][limit];
+                        -prices[index] +
+                        dp[index + 1][1][limit]
+                    );
 
-                        long long shortSell =
-                            prices[index] +
-                            next[2][limit];
+                    dp[index][0][limit] = max(
+                        dp[index][0][limit],
 
-                        long long skip =
-                            next[0][limit];
+                        prices[index] +
+                        dp[index + 1][2][limit]
+                    );
 
-                        profit = max({buy, shortSell, skip});
-                    }
+                    dp[index][1][limit] = max(
 
-                    else if(state == 1) {
+                        prices[index] +
+                        dp[index + 1][0][limit - 1],
 
-                        long long sell =
-                            prices[index] +
-                            next[0][limit - 1];
+                        dp[index + 1][1][limit]
+                    );
 
-                        long long hold =
-                            next[1][limit];
+                    dp[index][2][limit] = max(
 
-                        profit = max(sell, hold);
-                    }
+                        -prices[index] +
+                        dp[index + 1][0][limit - 1],
 
-                    else {
-
-                        long long buyBack =
-                            -prices[index] +
-                            next[0][limit - 1];
-
-                        long long hold =
-                            next[2][limit];
-
-                        profit = max(buyBack, hold);
-                    }
-
-                    curr[state][limit] = profit;
+                        dp[index + 1][2][limit]
+                    );
                 }
             }
-
-            next = curr;
         }
 
-        return next[0][k];
+        return dp[0][0][k];
     }
 };
